@@ -15,7 +15,9 @@ Pod::Spec.new do |s|
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-
+    # 支付宝
+  s.static_framework = true
+  s.dependency 'AlipaySDK-iOS', '~> 15.5.5'
   s.ios.deployment_target = '8.0'
 end
 
