@@ -24,22 +24,22 @@ class Alipay {
 
   static const MethodChannel _channel = MethodChannel('micro_flutter_alipay');
 
-  final StreamController<Map<String, String>> _payRespStreamController =
-      StreamController<Map<String, String>>.broadcast();
+  final StreamController _payRespStreamController =
+      StreamController.broadcast();
 
-  Future<void> registerApp() async {
+  Future<void> init() async {
     _channel.setMethodCallHandler(_handleMethod);
   }
 
   Future<dynamic> _handleMethod(MethodCall call) async {
     switch (call.method) {
       case _METHOD_ON_PAY:
-        _payRespStreamController.add(call.arguments as Map<String, String>);
+        _payRespStreamController.add(call.arguments);
         break;
     }
   }
 
-  Stream<Map<String, String>> payResp() {
+  Stream onPay() {
     return _payRespStreamController.stream;
   }
 

@@ -22,6 +22,10 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
 
     private static final String TAG = MicroFlutterAlipayPlugin.class.getSimpleName();
 
+
+    private final Registrar registrar;
+    private final MethodChannel channel;
+
     public MicroFlutterAlipayPlugin(Registrar registrar, MethodChannel channel) {
         this.registrar = registrar;
         this.channel = channel;
@@ -35,7 +39,6 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
         channel.setMethodCallHandler(new MicroFlutterAlipayPlugin(registrar, channel));
     }
 
-
     private static final String METHOD_ALI_PAY_INSTALLED = "aliPayInstalled";
 
     private static final String METHOD_PAY = "pay";
@@ -46,16 +49,9 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
 
     private static final String ARGUMENT_KEY_SHOW_LOADING = "showLoading";
 
-    private final Registrar registrar;
-    private final MethodChannel channel;
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
-//    if (call.method.equals("getPlatformVersion")) {
-//      result.success("Android " + android.os.Build.VERSION.RELEASE);
-//    } else {
-//      result.notImplemented();
-//    }
 
         if (METHOD_ALI_PAY_INSTALLED.equals(call.method)) {
             boolean aliPayInstalled = false;
@@ -75,6 +71,7 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
                 public void run() {
                     PayTask task = new PayTask(registrar.activity());
                     Map<String, String> result = task.payV2(orderInfo, showLoading);
+                    Log.d(TAG, "run: " + result);
                     channel.invokeMethod(METHOD_ON_PAY, result);
                 }
             };

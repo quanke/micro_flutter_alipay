@@ -1,39 +1,13 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:micro_flutter_alipay/micro_flutter_alipay.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(Home());
 
-class MyApp extends StatelessWidget {
-  final Alipay alipay;
-
-  const MyApp({Key key, this.alipay}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Alipay alipay = Alipay();
-    alipay.registerApp();
-
-    return AlipayProvider(
-      alipay: alipay,
-      child: MaterialApp(
-        home: Home(alipay: alipay),
-      ),
-    );
-  }
-}
+final Alipay alipay = Alipay();
 
 class Home extends StatefulWidget {
-  Home({
-    Key key,
-    @required this.alipay,
-  }) : super(key: key);
-
-  final Alipay alipay;
-
   @override
   State<StatefulWidget> createState() {
     return _MyAppState();
@@ -41,17 +15,19 @@ class Home extends StatefulWidget {
 }
 
 class _MyAppState extends State<Home> {
-  StreamSubscription<Map<String, String>> _pay;
 
   @override
   void initState() {
     super.initState();
+    alipay.init();
     initPlatformState();
   }
 
-  void _listenPay(Map<String, String> resp) {
+  void _listenPay(resp) {
     String content = "pay: ${resp}";
-    _showTips('支付', content);
+
+    print('支付：${resp}');
+//    _showTips('支付', content);
   }
 
   void _showTips(String title, String content) {
@@ -68,23 +44,20 @@ class _MyAppState extends State<Home> {
 
   @override
   void dispose() {
-    if (_pay != null) {
-      _pay.cancel();
-    }
     super.dispose();
   }
 
   //不要把支付秘钥放到本地
   void _onPay() {
-    widget.alipay.payOrder(
+    alipay.payOrder(
       orderInfo:
-          'app_id=2019040163782036&biz_content=%7B%22body%22%3A%221%E5%88%86%2F%E6%9D%A1%22%2C%22out_trade_no%22%3A%22a5d134aa63014dee8456fdc1409e3f8f%22%2C%22product_code%22%3A%22QUICK_MSECURITY_PAY%22%2C%22seller_id%22%3A%222088431796501714%22%2C%22subject%22%3A%22%E7%9F%AD%E4%BF%A1%3A1115159959747825664%22%2C%22total_amount%22%3A%221.00%22%7D&charset=utf-8&format=json&method=alipay.trade.app.pay&notify_url=http%3A%2F%2F95vwz5.natappfree.cc%2Fpay%2Fali%2FpayBack.json&return_url=http%3A%2F%2Fwoquanke.com&sign=YIIvO%2FtYvuHjt9fxF%2BEzShHoipc5Fwn2oUhybDp8VqOXp8wxKNvP6xPTV5154n3wg9ORGSJdBmUl48cjv12ZAG6LOOx7TD6jWjzCfGviXRTM%2Fgs45dAXc0oMYt%2BvHQKSU%2BEFI%2BmZvEze8kuAmS%2BYoCfKyhePbq%2BOUJQxNccGh%2B9VyYqfWybiFD4StqanA2xmttk8tfYmxDl9aIUwkUW40Msr4ulR0FK2rlUte%2FU2SoiZ5K0IIyZYqd8Ij%2Ba0u7xGAA0MoqtxZGH%2BeSMzQxSdZW9lX2%2BZRk%2BuK%2BNV%2FGUQg%2BirvqfzlmvegqiMjOySR7vChJCnAgR00Gw%2Fi6mT2bvsWA%3D%3D&sign_type=RSA2&timestamp=2019-04-24+01%3A48%3A42&version=1.0',
+          'app_id=2019040163782036&biz_content=%7B%22body%22%3A%221%E5%88%86%2F%E6%9D%A1%22%2C%22out_trade_no%22%3A%220b4e8729402d4abba4bcb2d91dc4346d%22%2C%22product_code%22%3A%22QUICK_MSECURITY_PAY%22%2C%22seller_id%22%3A%222088431796501714%22%2C%22subject%22%3A%22%E7%9F%AD%E4%BF%A1%3A1121316475949420544%22%2C%22total_amount%22%3A%221.00%22%7D&charset=utf-8&format=json&method=alipay.trade.app.pay&notify_url=http%3A%2F%2F95vwz5.natappfree.cc%2Fpay%2Fali%2FpayBack.json&return_url=http%3A%2F%2Fwoquanke.com&sign=PnVfr0bKsejhY9E3fe9mwyFKBQU7BAVYnXc8giKayHtytP2lr1K9rM15lsk0EKV2LX1zO5KWbVAl5Q%2BNpgZN7Yi1k3uu3rXAGpTEZQorjimmqD31MK8rWOCrP3mjHXueOecHDkJqAFpcdmclW8GwxcQsYQwX74JEPpTN7MSF9THG8m8obGGcE0tzHuitutAMMwq02Kf%2F3ZRXluvnbJyE03iznkswne%2FfwayO0CoV4TURYL8%2BJVT0RaIRy6JidfMVeUeJXDtfhO2IMiW7XJFpMfd%2F0APAZ8qjubL9%2FnYJi6AOJwcKfCtN%2BJA23eK6laAaOMZtzWpmBJ9j7%2FYmWtQiXg%3D%3D&sign_type=RSA2&timestamp=2019-04-25+15%3A34%3A59&version=1.0',
     );
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    _pay = widget.alipay.payResp().listen(_listenPay);
+    alipay.onPay().listen(_listenPay);
 
     setState(() {
 //      _platformVersion = platformVersion;
