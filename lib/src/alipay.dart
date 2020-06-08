@@ -10,12 +10,14 @@ import 'package:micro_flutter_alipay/src/rsa.dart';
 
 class Alipay {
   static const String _METHOD_ALI_PAY_INSTALLED = 'alipayInstalled';
+  static const String _METHOD_ON_INIT = 'onInit';
   static const String _METHOD_PAY = 'pay';
 
   static const String _METHOD_ON_PAY = 'onPay';
 
   static const String _ARGUMENT_KEY_ORDER_INFO = 'orderInfo';
   static const String _ARGUMENT_KEY_SHOW_LOADING = 'showLoading';
+  static const String ARGUMENT_KEY_URL_SCHEME = 'urlScheme';
 
   static const String SIGN_TYPE_RSA = 'RSA';
   static const String SIGN_TYPE_RSA2 = 'RSA2';
@@ -27,8 +29,12 @@ class Alipay {
   final StreamController _payRespStreamController =
       StreamController.broadcast();
 
-  Future<void> init() async {
+  Future<void> init(String urlScheme) async {
     _channel.setMethodCallHandler(_handleMethod);
+
+    await _channel.invokeMethod(_METHOD_ON_INIT, <String, dynamic>{
+      ARGUMENT_KEY_URL_SCHEME: urlScheme,
+    });
   }
 
   Future<dynamic> _handleMethod(MethodCall call) async {

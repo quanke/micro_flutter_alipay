@@ -20,10 +20,14 @@ static NSString * const METHOD_PAY = @"pay";
 
 
 static NSString * const METHOD_ON_PAY = @"onPay";
+static NSString * const METHOD_ON_INIT = @"onInit";
 
 
 static NSString * const ARGUMENT_KEY_ORDER_INFO = @"orderInfo";
 
+static NSString * const ARGUMENT_KEY_URL_SCHEME = @"urlScheme";
+
+NSString * urlScheme = @"alipay";
 
 -(instancetype)initWithChannel:(FlutterMethodChannel *)channel {
     self = [super init];
@@ -45,7 +49,11 @@ static NSString * const ARGUMENT_KEY_ORDER_INFO = @"orderInfo";
             [self -> _channel invokeMethod:METHOD_ON_PAY arguments:resultDic];
         }];
         result(nil);
-    } else {
+    } else if([METHOD_ON_INIT isEqualToString:call.method]){
+        urlScheme = call.arguments[ARGUMENT_KEY_URL_SCHEME];
+        result(nil);
+    }
+    else {
         result(FlutterMethodNotImplemented);
     }
 }
@@ -54,7 +62,7 @@ static NSString * const ARGUMENT_KEY_ORDER_INFO = @"orderInfo";
     NSDictionary * infoDic = [[NSBundle mainBundle] infoDictionary];
     NSArray * types = [infoDic objectForKey:@"CFBundleURLTypes"];
     for (NSDictionary * type in types) {
-        if([@"alipay" isEqualToString: [type objectForKey:@"CFBundleURLName"]]){
+        if([urlScheme isEqualToString: [type objectForKey:@"CFBundleURLName"]]){
             return [type objectForKey:@"CFBundleURLSchemes"][0];
         }
     }
