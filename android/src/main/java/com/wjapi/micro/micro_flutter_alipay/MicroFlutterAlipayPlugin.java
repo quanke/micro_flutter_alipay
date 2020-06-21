@@ -54,6 +54,9 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
 
     private static final String ARGUMENT_KEY_SHOW_LOADING = "showLoading";
 
+    private static final String METHOD_ON_INIT = "onInit";
+
+    private static final String ARGUMENT_KEY_URL_SCHEME = "urlScheme";
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
@@ -109,6 +112,9 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
 //                }
 //            };
 //            new Thread(pay).start();
+            result.success(null);
+        } else if (METHOD_ON_INIT.equals(call.method)) {
+            final String urlScheme = call.argument(ARGUMENT_KEY_URL_SCHEME);
             result.success(null);
         } else {
             result.notImplemented();
