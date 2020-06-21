@@ -79,7 +79,7 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
                     Activity activity = activityRef.get();
                     if (activity != null && !activity.isFinishing()) {
                         PayTask task = new PayTask(activity);
-                        return task.payV2(orderInfo, isShowLoading);
+                        return task.payV2(orderInfo, showLoading);
                     }
                     return null;
                 }
