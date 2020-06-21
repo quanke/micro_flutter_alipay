@@ -1,12 +1,17 @@
 package com.wjapi.micro.micro_flutter_alipay;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import com.alipay.sdk.app.AuthTask;
 import com.alipay.sdk.app.PayTask;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import io.flutter.plugin.common.MethodCall;
@@ -66,16 +71,44 @@ public class MicroFlutterAlipayPlugin implements MethodCallHandler {
         } else if (METHOD_PAY.equals(call.method)) {
             final String orderInfo = call.argument(ARGUMENT_KEY_ORDER_INFO);
             final boolean showLoading = call.argument(ARGUMENT_KEY_SHOW_LOADING);
-            Runnable pay = new Runnable() {
+
+            final WeakReference<Activity> activityRef = new WeakReference<>(registrar.activity());
+            new AsyncTask<String, String, Map<String, String>>() {
                 @Override
-                public void run() {
-                    PayTask task = new PayTask(registrar.activity());
-                    Map<String, String> result = task.payV2(orderInfo, showLoading);
-                    Log.d(TAG, "run: " + result);
-                    channel.invokeMethod(METHOD_ON_PAY, result);
+                protected Map<String, String> doInBackground(String... params) {
+                    Activity activity = activityRef.get();
+                    if (activity != null && !activity.isFinishing()) {
+                        PayTask task = new PayTask(activity);
+                        return task.payV2(orderInfo, isShowLoading);
+                    }
+                    return null;
                 }
-            };
-            new Thread(pay).start();
+
+                @Override
+                protected void onPostExecute(Map<String, String> result) {
+                    if (result != null) {
+                        Activity activity = activityRef.get();
+                        if (activity != null && !activity.isFinishing()) {
+                            if (channel != null) {
+                                channel.invokeMethod(METHOD_ON_PAY, result);
+                            }
+                        }
+                    }
+                }
+            }.execute();
+
+//
+//
+//            Runnable pay = new Runnable() {
+//                @Override
+//                public void run() {
+//                    PayTask task = new PayTask(registrar.activity());
+//                    Map<String, String> result = task.payV2(orderInfo, showLoading);
+//                    Log.d(TAG, "run: " + result);
+//                    channel.invokeMethod(METHOD_ON_PAY, result);
+//                }
+//            };
+//            new Thread(pay).start();
             result.success(null);
         } else {
             result.notImplemented();
